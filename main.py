@@ -4,7 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from time import sleep
 
-webdriver_executable_path=r"C:\Users\greek\PycharmProjects\parsing\chromedriver.exe"
+webdriver_executable_path=r"C:\Users\User\PycharmProjects\parsing2\chromedriver.exe"
 
 
 def get_source_html(url):
@@ -61,8 +61,8 @@ def get_data(file_path):
 
 def main():
     url = "https://spb.zoon.ru/medical/?search_query_form=1&m%5B5200e522a0f302f066000055%5D=1&center%5B%5D=59.91955103369411&center%5B%5D=30.343507880992853&zoom=10"
-    #get_source_html(url)
-    #print(get_items_urls("source.html"))
+    get_source_html(url)
+    print(get_items_urls("source.html"))
     get_data("urls.txt")
 
 if __name__ == "__main__":
