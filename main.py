@@ -4,8 +4,12 @@ from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from time import sleep
 
-webdriver_executable_path=r"C:\Users\User\PycharmProjects\parsing2\chromedriver.exe"
+headers = {
+    "accept" : "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+    "user-agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36"
 
+}
+webdriver_executable_path=r"C:\Users\User\PycharmProjects\parsing2\chromedriver.exe"
 
 def get_source_html(url):
     driver = webdriver.Chrome(webdriver_executable_path)
@@ -56,13 +60,35 @@ def get_items_urls(file_path: str):
 def get_data(file_path):
     with open(file_path, "r") as file:
         url_list = [url.strip() for url in file.readlines()]
-        print(url_list)
+
+    for url in url_list[:-1]:
+        response = requests.get(url=url, headers=headers)
+        print(response.text)
+        soup = BeautifulSoup(response, "lxml")
+
+        try:
+            item_name = soup.find("span", {"item-prop" : "name"}).text.strip()
+        except Exception as ex:
+            item_name = None
+
+        item_phones_list = []
+        try:
+            item_phones = soup.find("div", class_="service-phones-list").find_all("a", class_="js-phone-number")
+            for phone in item_phones:
+                item_phone = phone.get("href").split(":")[-1].strip()
+                item_phones_list.append(item_phone)
+        except Exception as ex:
+            item_phones_list = None
+
+        print(item_name, item_phones_list)
+
+
 
 
 def main():
     url = "https://spb.zoon.ru/medical/?search_query_form=1&m%5B5200e522a0f302f066000055%5D=1&center%5B%5D=59.91955103369411&center%5B%5D=30.343507880992853&zoom=10"
-    get_source_html(url)
-    print(get_items_urls("source.html"))
+    #get_source_html(url)
+    #get_items_urls("source.html")
     get_data("urls.txt")
 
 if __name__ == "__main__":
