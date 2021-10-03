@@ -9,14 +9,14 @@ headers = {
     "user-agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36"
 
 }
-webdriver_executable_path=r"C:\Users\User\PycharmProjects\parsing2\chromedriver.exe"
+webdriver_executable_path=r"C:\Users\greek\PycharmProjects\parsing\chromedriver.exe"
 
 def get_source_html(url):
     driver = webdriver.Chrome(webdriver_executable_path)
     driver.maximize_window()
     try:
         driver.get(url=url)
-        sleep(5)
+        sleep(3)
         while True:
             find_more_element = driver.find_element_by_class_name("catalog-button-showMore")
             if driver.find_elements_by_class_name("hasmore-text"):
@@ -33,7 +33,7 @@ def get_source_html(url):
         driver.close()
         driver.quit()
 
-def get_items_urls(file_path: str):
+def get_urls(file_path: str):
 
     with open(file_path, "r", encoding="utf-8") as file:
         src = file.read()
@@ -57,18 +57,19 @@ def get_items_urls(file_path: str):
 
     return "[INFO] Urls collected successfully!"
 
+
 def get_data(file_path):
     with open(file_path, "r") as file:
         url_list = [url.strip() for url in file.readlines()]
 
-    for url in url_list[:-1]:
+    for url in url_list[:1]:
         response = requests.get(url=url, headers=headers)
-        print(response.text)
-        soup = BeautifulSoup(response, "lxml")
+        soup = BeautifulSoup(response.text, "lxml")
 
         try:
-            item_name = soup.find("span", {"item-prop" : "name"}).text.strip()
-        except Exception as ex:
+            item_name = soup.find("span", {"itemprop" : "name"}).text.strip()
+        except Exception as ex_:
+            print(ex_)
             item_name = None
 
         item_phones_list = []
@@ -80,15 +81,19 @@ def get_data(file_path):
         except Exception as ex:
             item_phones_list = None
 
-        print(item_name, item_phones_list)
+        try:
+            item_address = soup.find("address", class_="iblock").text.strip()
+        except Exception as ex_:
+            item_address = None
 
+        print(item_name, item_phones_list, item_address)
 
 
 
 def main():
     url = "https://spb.zoon.ru/medical/?search_query_form=1&m%5B5200e522a0f302f066000055%5D=1&center%5B%5D=59.91955103369411&center%5B%5D=30.343507880992853&zoom=10"
     #get_source_html(url)
-    #get_items_urls("source.html")
+    #get_urls("source.html")
     get_data("urls.txt")
 
 if __name__ == "__main__":
